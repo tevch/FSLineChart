@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import "FSLineChart.h"
 #import "UIColor+FSPalette.h"
+#import "FSDataSet.h"
 
 @interface ViewController ()
 
@@ -20,7 +21,7 @@
     [super viewDidLoad];
     
     [self.view addSubview:[self chart1]];
-    [self.view addSubview:[self chart2]];
+    //[self.view addSubview:[self chart2]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -32,24 +33,51 @@
 
 -(FSLineChart*)chart1 {
     // Generating some dummy data
-    NSMutableArray* chartData = [NSMutableArray arrayWithCapacity:10];
+    NSMutableArray* dataSet1Data = [NSMutableArray arrayWithCapacity:10];
+    /*
     srand(time(nil));
     for(int i=0;i<10;i++) {
         int r = (rand() + rand()) % 1000;
         chartData[i] = [NSNumber numberWithInt:r + 200];
     }
+     */
+    dataSet1Data[0] = [NSNumber numberWithInt:10];
+    dataSet1Data[1] = [NSNumber numberWithInt:15];
+    dataSet1Data[2] = [NSNumber numberWithInt:12];
+    dataSet1Data[3] = [NSNumber numberWithInt:7];
+    dataSet1Data[4] = [NSNumber numberWithInt:12];
+    dataSet1Data[5] = [NSNumber numberWithInt:8];
+    
+    NSMutableArray* dataSet2Data = [NSMutableArray arrayWithCapacity:10];
+    dataSet2Data[0] = [NSNumber numberWithInt:2];
+    dataSet2Data[1] = [NSNumber numberWithInt:5];
+    dataSet2Data[2] = [NSNumber numberWithInt:8];
+    dataSet2Data[3] = [NSNumber numberWithInt:11];
+    dataSet2Data[4] = [NSNumber numberWithInt:10];
+    dataSet2Data[5] = [NSNumber numberWithInt:5];
+    
+    NSMutableArray* dataSets = [NSMutableArray arrayWithCapacity:10];
+    dataSets[0] = [[FSDataSet alloc] initWithData:dataSet1Data];
+    dataSets[1] = [[FSDataSet alloc] initWithData:dataSet2Data];
+    
     // Creating the line chart
     FSLineChart* lineChart = [[FSLineChart alloc] initWithFrame:CGRectMake(20, 60, [UIScreen mainScreen].bounds.size.width - 40, 166)];
-    lineChart.verticalGridStep = 5;
-    lineChart.horizontalGridStep = 9;
+    //lineChart.verticalGridStep = 10;
+    //lineChart.horizontalGridStep = 9;
+    lineChart.verticalGridStep = 1;
+    lineChart.horizontalGridStep = 1;
+    lineChart.displayDataPoint = YES;
+    lineChart.bezierSmoothing = NO;
     //lineChart.fillColor = nil;
+    /*
     lineChart.labelForIndex = ^(NSUInteger item) {
         return [NSString stringWithFormat:@"%lu",(unsigned long)item];
     };
     lineChart.labelForValue = ^(CGFloat value) {
         return [NSString stringWithFormat:@"%.f", value];
     };
-    [lineChart setChartData:chartData];
+     */
+    [lineChart setChartDataSets:dataSets];
     return lineChart;
 }
 -(FSLineChart*)chart2 {
@@ -70,7 +98,7 @@
     lineChart.labelForValue = ^(CGFloat value) {
         return [NSString stringWithFormat:@"%.f €", value];
     };
-    [lineChart setChartData:chartData];
+    [lineChart setChartDataSets:chartData];
     return lineChart;
 }
 -(FSLineChart*)chart3 {
@@ -92,7 +120,7 @@
     lineChart.labelForValue = ^(CGFloat value) {
         return [NSString stringWithFormat:@"%.02f €", value];
     };
-    [lineChart setChartData:chartData];
+    [lineChart setChartDataSets:chartData];
     return lineChart;
 }
 

@@ -22,10 +22,11 @@
 #import <QuartzCore/QuartzCore.h>
 #import "FSLineChart.h"
 #import "UIColor+FSPalette.h"
+#import "FSDataSet.h"
 
 @interface FSLineChart ()
 
-@property (nonatomic, strong) NSMutableArray* data;
+@property (nonatomic, strong) NSMutableArray* dataSets;
 
 @property (nonatomic) CGFloat min;
 @property (nonatomic) CGFloat max;
@@ -46,9 +47,22 @@
     return self;
 }
 
-- (void)setChartData:(NSArray *)chartData
+-(FSDataSet *) getLongestDataSet {
+    FSDataSet *longestDataSet = nil;
+    for(FSDataSet *dataSet in _dataSets) {
+        if(longestDataSet==nil) {
+            longestDataSet = dataSet;
+        } else if(dataSet.data.count > longestDataSet.data.count){
+            longestDataSet = dataSet;
+        }
+    }
+    
+    return longestDataSet;
+}
+
+- (void)setChartDataSets:(NSArray *)chartDataSets
 {
-    _data = [NSMutableArray arrayWithArray:chartData];
+    _dataSets = [NSMutableArray arrayWithArray:chartDataSets];
     
     [self computeBounds];
     
@@ -96,16 +110,17 @@
         }
     }
     
+    FSDataSet *longestDataSet = [self getLongestDataSet];
     if(_labelForIndex) {
         float scale = 1.0f;
-        int q = (int)_data.count / _horizontalGridStep;
-        scale = (CGFloat)(q * _horizontalGridStep) / (CGFloat)(_data.count - 1);
+        int q = (int)longestDataSet.data.count / _horizontalGridStep;
+        scale = (CGFloat)(q * _horizontalGridStep) / (CGFloat)(longestDataSet.data.count - 1);
         
         for(int i=0;i<_horizontalGridStep + 1;i++) {
             NSInteger itemIndex = q * i;
-            if(itemIndex >= _data.count)
+            if(itemIndex >= longestDataSet.data.count)
             {
-                itemIndex = _data.count - 1;
+                itemIndex = longestDataSet.data.count - 1;
             }
             
             NSString* text = _labelForIndex(itemIndex);
@@ -155,9 +170,11 @@
     CGContextAddLineToPoint(ctx, _margin, _axisHeight + _margin + 3);
     CGContextStrokePath(ctx);
     
+    FSDataSet *longestDataSet = [self getLongestDataSet];
+    
     float scale = 1.0f;
-    int q = (int)_data.count / _horizontalGridStep;
-    scale = (CGFloat)(q * _horizontalGridStep) / (CGFloat)(_data.count - 1);
+    int q = (int)longestDataSet.data.count / _horizontalGridStep;
+    scale = (CGFloat)(q * _horizontalGridStep) / (CGFloat)(longestDataSet.data.count - 1);
     
     
     CGFloat minBound = MIN(_min, 0);
@@ -206,6 +223,7 @@
 
 - (void)strokeChart
 {
+    for(FSDataSet *dataSet in self.dataSets) {
     UIBezierPath *path = [UIBezierPath bezierPath];
     UIBezierPath *noPath = [UIBezierPath bezierPath];
     UIBezierPath* fill = [UIBezierPath bezierPath];
@@ -216,11 +234,11 @@
     
     CGFloat scale = _axisHeight / (maxBound - minBound);
     
-    noPath = [self getLinePath:0 withSmoothing:_bezierSmoothing close:NO];
-    path = [self getLinePath:scale withSmoothing:_bezierSmoothing close:NO];
+        noPath = [self getLinePath:0 ofDataSet:dataSet withSmoothing:_bezierSmoothing close:NO];
+    path = [self getLinePath:scale ofDataSet:dataSet withSmoothing:_bezierSmoothing close:NO];
     
-    noFill = [self getLinePath:0 withSmoothing:_bezierSmoothing close:YES];
-    fill = [self getLinePath:scale withSmoothing:_bezierSmoothing close:YES];
+    noFill = [self getLinePath:0 ofDataSet:dataSet withSmoothing:_bezierSmoothing close:YES];
+    fill = [self getLinePath:scale ofDataSet:dataSet withSmoothing:_bezierSmoothing close:YES];
     
     if(_fillColor) {
         CAShapeLayer *fillLayer = [CAShapeLayer layer];
@@ -269,7 +287,7 @@
         pathAnimation.toValue = [NSNumber numberWithFloat:1.0f];
         [pathLayer addAnimation:pathAnimation forKey:@"path"];
     }
-    
+    }
 }
 
 - (void)strokeDataPoints
@@ -281,8 +299,10 @@
     
     //CAShapeLayer *dataPointsLayer = [CAShapeLayer layer];
     
-    for(int i=0;i<_data.count;i++) {
-        CGPoint p = [self getPointForIndex:i withScale:scale];
+    for(int d=0;d<self.dataSets.count;d++) {
+        FSDataSet *dataSet = self.dataSets[d];
+    for(int i=0;i<dataSet.data.count;i++) {
+        CGPoint p = [self getPointForIndex:i ofDataSet:dataSet withScale:scale];
         p.y +=  minBound * scale;
 
         UIBezierPath* circle = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(p.x - _dataPointRadius, p.y - _dataPointRadius, _dataPointRadius * 2, _dataPointRadius * 2)];
@@ -297,6 +317,23 @@
         fillLayer.lineJoin = kCALineJoinRound;
         
         [self.layer addSublayer:fillLayer];
+        
+        CATextLayer *label = [[CATextLayer alloc] init];
+        //[label setFont:@"Helvetica-Bold"];
+        [label setFontSize:8];
+        //label.opaque = TRUE;
+        CGFloat scale = [[UIScreen mainScreen] scale];
+        label.contentsScale = scale;
+        [label setFrame:CGRectMake(p.x-10, p.y+-15, 20, 10)];
+        [label setAlignmentMode:kCAAlignmentCenter];
+        [label setForegroundColor:[[UIColor blackColor] CGColor]];
+        
+        NSNumber* number = dataSet.data[i];
+        NSString *strValue = [NSString stringWithFormat:@"%@", number ];
+        [label setString:strValue];
+        
+        [self.layer addSublayer:label];
+    }
     }
 }
 
@@ -339,13 +376,15 @@
     _min = MAXFLOAT;
     _max = -MAXFLOAT;
     
-    for(int i=0;i<_data.count;i++) {
-        NSNumber* number = _data[i];
+    for(FSDataSet *dataSet in self.dataSets) {
+    for(int i=0;i<dataSet.data.count;i++) {
+        NSNumber* number = dataSet.data[i];
         if([number floatValue] < _min)
             _min = [number floatValue];
         
         if([number floatValue] > _max)
             _max = [number floatValue];
+    }
     }
     
     // The idea is to adjust the minimun and the maximum value to display the whole chart in the view, and if possible with nice "round" steps.
@@ -425,24 +464,24 @@
     _horizontalGridStep = gridStep;
 }
 
-- (CGPoint)getPointForIndex:(NSInteger)idx withScale:(CGFloat)scale
+- (CGPoint)getPointForIndex:(NSInteger)idx ofDataSet:(FSDataSet *)dataSet withScale:(CGFloat)scale
 {
-    if(idx < 0 || idx >= _data.count)
+    if(idx < 0 || idx >= dataSet.data.count)
         return CGPointZero;
     
     // Compute the point in the view from the data with a set scale
-    NSNumber* number = _data[idx];
-    return CGPointMake(_margin + idx * (_axisWidth / (_data.count - 1)), _axisHeight + _margin - [number floatValue] * scale);
+    NSNumber* number = dataSet.data[idx];
+    return CGPointMake(_margin + idx * (_axisWidth / (dataSet.data.count - 1)), _axisHeight + _margin - [number floatValue] * scale);
 }
 
-- (UIBezierPath*)getLinePath:(float)scale withSmoothing:(BOOL)smoothed close:(BOOL)closed
+- (UIBezierPath*)getLinePath:(float)scale ofDataSet:(FSDataSet *)dataSet withSmoothing:(BOOL)smoothed close:(BOOL)closed
 {
     UIBezierPath* path = [UIBezierPath bezierPath];
     
     if(smoothed) {
-        for(int i=0;i<_data.count - 1;i++) {
+        for(int i=0;i<dataSet.data.count - 1;i++) {
             CGPoint controlPoint[2];
-            CGPoint p = [self getPointForIndex:i withScale:scale];
+            CGPoint p = [self getPointForIndex:i ofDataSet:dataSet withScale:scale];
             
             // Start the path drawing
             if(i == 0)
@@ -451,8 +490,8 @@
             CGPoint nextPoint, previousPoint, m;
             
             // First control point
-            nextPoint = [self getPointForIndex:i + 1 withScale:scale];
-            previousPoint = [self getPointForIndex:i - 1 withScale:scale];
+            nextPoint = [self getPointForIndex:i + 1 ofDataSet:dataSet withScale:scale];
+            previousPoint = [self getPointForIndex:i - 1 ofDataSet:dataSet withScale:scale];
             m = CGPointZero;
             
             if(i > 0) {
@@ -467,12 +506,12 @@
             controlPoint[0].y = p.y + m.y * _bezierSmoothingTension;
             
             // Second control point
-            nextPoint = [self getPointForIndex:i + 2 withScale:scale];
-            previousPoint = [self getPointForIndex:i withScale:scale];
-            p = [self getPointForIndex:i + 1 withScale:scale];
+            nextPoint = [self getPointForIndex:i + 2 ofDataSet:dataSet withScale:scale];
+            previousPoint = [self getPointForIndex:i ofDataSet:dataSet withScale:scale];
+            p = [self getPointForIndex:i + 1 ofDataSet:dataSet withScale:scale];
             m = CGPointZero;
             
-            if(i < _data.count - 2) {
+            if(i < dataSet.data.count - 2) {
                 m.x = (nextPoint.x - previousPoint.x) / 2;
                 m.y = (nextPoint.y - previousPoint.y) / 2;
             } else {
@@ -487,21 +526,21 @@
         }
         
     } else {
-        for(int i=0;i<_data.count;i++) {
+        for(int i=0;i<dataSet.data.count;i++) {
             if(i > 0) {
-                [path addLineToPoint:[self getPointForIndex:i withScale:scale]];
+                [path addLineToPoint:[self getPointForIndex:i ofDataSet:dataSet withScale:scale]];
             } else {
-                [path moveToPoint:[self getPointForIndex:i withScale:scale]];
+                [path moveToPoint:[self getPointForIndex:i ofDataSet:dataSet withScale:scale]];
             }
         }
     }
     
     if(closed) {
         // Closing the path for the fill drawing
-        [path addLineToPoint:[self getPointForIndex:_data.count - 1 withScale:scale]];
-        [path addLineToPoint:[self getPointForIndex:_data.count - 1 withScale:0]];
-        [path addLineToPoint:[self getPointForIndex:0 withScale:0]];
-        [path addLineToPoint:[self getPointForIndex:0 withScale:scale]];
+        [path addLineToPoint:[self getPointForIndex:dataSet.data.count - 1 ofDataSet:dataSet withScale:scale]];
+        [path addLineToPoint:[self getPointForIndex:dataSet.data.count - 1 ofDataSet:dataSet withScale:0]];
+        [path addLineToPoint:[self getPointForIndex:0 ofDataSet:dataSet withScale:0]];
+        [path addLineToPoint:[self getPointForIndex:0 ofDataSet:dataSet withScale:scale]];
     }
     
     return path;
