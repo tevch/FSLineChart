@@ -48,6 +48,13 @@
     dataSet1Data[4] = [NSNumber numberWithInt:12];
     dataSet1Data[5] = [NSNumber numberWithInt:8];
     
+    FSDataSet * dataSet1 = [[FSDataSet alloc] initWithData:dataSet1Data];
+    dataSet1.displayDataPoint = YES;
+    dataSet1.bezierSmoothing = NO;
+    //dataSet1.color = [UIColor fsOrange];
+    dataSet1.fillColor = [[UIColor fsPink] colorWithAlphaComponent:0.3];
+    dataSet1.dataPointRadius = 2;
+    
     NSMutableArray* dataSet2Data = [NSMutableArray arrayWithCapacity:10];
     dataSet2Data[0] = [NSNumber numberWithInt:2];
     dataSet2Data[1] = [NSNumber numberWithInt:5];
@@ -56,9 +63,20 @@
     dataSet2Data[4] = [NSNumber numberWithInt:10];
     dataSet2Data[5] = [NSNumber numberWithInt:5];
     
+    
+    FSDataSet *dataSet2 = [[FSDataSet alloc] initWithData:dataSet2Data];
+    dataSet2.displayDataPoint = YES;
+    dataSet2.bezierSmoothing = NO;
+    //dataSet2.color = [UIColor fsOrange];
+    dataSet2.fillColor = [[UIColor fsLightBlue] colorWithAlphaComponent:0.3];
+    dataSet2.dataPointRadius = 2;
+    //dataSet2.color = [UIColor colorWithRed:151.0f/255.0f green:187.0f/255.0f blue:205.0f/255.0f alpha:1.0f];
+    //dataSet2.fillColor = [dataSet2.color colorWithAlphaComponent:0.3];
+    
+    
     NSMutableArray* dataSets = [NSMutableArray arrayWithCapacity:10];
-    dataSets[0] = [[FSDataSet alloc] initWithData:dataSet1Data];
-    dataSets[1] = [[FSDataSet alloc] initWithData:dataSet2Data];
+    dataSets[0] = dataSet1;
+    dataSets[1] = dataSet2;
     
     // Creating the line chart
     FSLineChart* lineChart = [[FSLineChart alloc] initWithFrame:CGRectMake(20, 60, [UIScreen mainScreen].bounds.size.width - 40, 166)];
@@ -66,8 +84,7 @@
     //lineChart.horizontalGridStep = 9;
     lineChart.verticalGridStep = 1;
     lineChart.horizontalGridStep = 1;
-    lineChart.displayDataPoint = YES;
-    lineChart.bezierSmoothing = NO;
+    
     //lineChart.fillColor = nil;
     /*
     lineChart.labelForIndex = ^(NSUInteger item) {
@@ -90,8 +107,8 @@
     FSLineChart* lineChart = [[FSLineChart alloc] initWithFrame:CGRectMake(20, 260, [UIScreen mainScreen].bounds.size.width - 40, 166)];
     lineChart.verticalGridStep = 4;
     lineChart.horizontalGridStep = 2;
-    lineChart.color = [UIColor fsOrange];
-    lineChart.fillColor = nil;
+    //lineChart.color = [UIColor fsOrange];
+    //lineChart.fillColor = nil;
     lineChart.labelForIndex = ^(NSUInteger item) {
         return [NSString stringWithFormat:@"%lu%%",(unsigned long)item];
     };
@@ -112,8 +129,8 @@
     FSLineChart* lineChart = [[FSLineChart alloc] initWithFrame:CGRectMake(20, 60, [UIScreen mainScreen].bounds.size.width - 40, 166)];
     lineChart.verticalGridStep = 6;
     lineChart.horizontalGridStep = 3; // 151,187,205,0.2
-    lineChart.color = [UIColor colorWithRed:151.0f/255.0f green:187.0f/255.0f blue:205.0f/255.0f alpha:1.0f];
-    lineChart.fillColor = [lineChart.color colorWithAlphaComponent:0.3];
+    //lineChart.color = [UIColor colorWithRed:151.0f/255.0f green:187.0f/255.0f blue:205.0f/255.0f alpha:1.0f];
+    //lineChart.fillColor = [lineChart.color colorWithAlphaComponent:0.3];
     lineChart.labelForIndex = ^(NSUInteger item) {
         return months[item];
     };

@@ -76,9 +76,7 @@
     
     [self strokeChart];
     
-    if(_displayDataPoint) {
-        [self strokeDataPoints];
-    }
+    [self strokeDataPoints];
     
     if(_labelForValue) {
         for(int i=0;i<_verticalGridStep;i++) {
@@ -224,69 +222,69 @@
 - (void)strokeChart
 {
     for(FSDataSet *dataSet in self.dataSets) {
-    UIBezierPath *path = [UIBezierPath bezierPath];
-    UIBezierPath *noPath = [UIBezierPath bezierPath];
-    UIBezierPath* fill = [UIBezierPath bezierPath];
-    UIBezierPath* noFill = [UIBezierPath bezierPath];
+        UIBezierPath *path = [UIBezierPath bezierPath];
+        UIBezierPath *noPath = [UIBezierPath bezierPath];
+        UIBezierPath* fill = [UIBezierPath bezierPath];
+        UIBezierPath* noFill = [UIBezierPath bezierPath];
     
-    CGFloat minBound = MIN(_min, 0);
-    CGFloat maxBound = MAX(_max, 0);
+        CGFloat minBound = MIN(_min, 0);
+        CGFloat maxBound = MAX(_max, 0);
     
-    CGFloat scale = _axisHeight / (maxBound - minBound);
+        CGFloat scale = _axisHeight / (maxBound - minBound);
     
-        noPath = [self getLinePath:0 ofDataSet:dataSet withSmoothing:_bezierSmoothing close:NO];
-    path = [self getLinePath:scale ofDataSet:dataSet withSmoothing:_bezierSmoothing close:NO];
+        noPath = [self getLinePath:0 ofDataSet:dataSet withSmoothing:dataSet.bezierSmoothing close:NO];
+        path = [self getLinePath:scale ofDataSet:dataSet withSmoothing:dataSet.bezierSmoothing close:NO];
     
-    noFill = [self getLinePath:0 ofDataSet:dataSet withSmoothing:_bezierSmoothing close:YES];
-    fill = [self getLinePath:scale ofDataSet:dataSet withSmoothing:_bezierSmoothing close:YES];
+        noFill = [self getLinePath:0 ofDataSet:dataSet withSmoothing:dataSet.bezierSmoothing close:YES];
+        fill = [self getLinePath:scale ofDataSet:dataSet withSmoothing:dataSet.bezierSmoothing close:YES];
     
-    if(_fillColor) {
-        CAShapeLayer *fillLayer = [CAShapeLayer layer];
-        fillLayer.frame = CGRectMake(self.bounds.origin.x, self.bounds.origin.y + minBound * scale, self.bounds.size.width, self.bounds.size.height);
-        fillLayer.bounds = self.bounds;
-        fillLayer.path = fill.CGPath;
-        fillLayer.strokeColor = nil;
-        fillLayer.fillColor = _fillColor.CGColor;
-        fillLayer.lineWidth = 0;
-        fillLayer.lineJoin = kCALineJoinRound;
+        if(dataSet.fillColor) {
+            CAShapeLayer *fillLayer = [CAShapeLayer layer];
+            fillLayer.frame = CGRectMake(self.bounds.origin.x, self.bounds.origin.y + minBound * scale, self.bounds.size.width, self.bounds.size.height);
+            fillLayer.bounds = self.bounds;
+            fillLayer.path = fill.CGPath;
+            fillLayer.strokeColor = nil;
+            fillLayer.fillColor = dataSet.fillColor.CGColor;
+            fillLayer.lineWidth = 0;
+            fillLayer.lineJoin = kCALineJoinRound;
         
-        [self.layer addSublayer:fillLayer];
+            [self.layer addSublayer:fillLayer];
         
-        CABasicAnimation *fillAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
-        fillAnimation.duration = _animationDuration;
-        fillAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-        fillAnimation.fillMode = kCAFillModeForwards;
-        fillAnimation.fromValue = (id)noFill.CGPath;
-        fillAnimation.toValue = (id)fill.CGPath;
-        [fillLayer addAnimation:fillAnimation forKey:@"path"];
-    }
+            CABasicAnimation *fillAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
+            fillAnimation.duration = _animationDuration;
+            fillAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            fillAnimation.fillMode = kCAFillModeForwards;
+            fillAnimation.fromValue = (id)noFill.CGPath;
+            fillAnimation.toValue = (id)fill.CGPath;
+            [fillLayer addAnimation:fillAnimation forKey:@"path"];
+        }
     
-    CAShapeLayer *pathLayer = [CAShapeLayer layer];
-    pathLayer.frame = CGRectMake(self.bounds.origin.x, self.bounds.origin.y + minBound * scale, self.bounds.size.width, self.bounds.size.height);
-    pathLayer.bounds = self.bounds;
-    pathLayer.path = path.CGPath;
-    pathLayer.strokeColor = [_color CGColor];
-    pathLayer.fillColor = nil;
-    pathLayer.lineWidth = _lineWidth;
-    pathLayer.lineJoin = kCALineJoinRound;
+        CAShapeLayer *pathLayer = [CAShapeLayer layer];
+        pathLayer.frame = CGRectMake(self.bounds.origin.x, self.bounds.origin.y + minBound * scale, self.bounds.size.width, self.bounds.size.height);
+        pathLayer.bounds = self.bounds;
+        pathLayer.path = path.CGPath;
+        pathLayer.strokeColor = [dataSet.color CGColor];
+        pathLayer.fillColor = nil;
+        pathLayer.lineWidth = dataSet.lineWidth;
+        pathLayer.lineJoin = kCALineJoinRound;
     
-    [self.layer addSublayer:pathLayer];
+        [self.layer addSublayer:pathLayer];
     
-    if(_fillColor) {
-        CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
-        pathAnimation.duration = _animationDuration;
-        pathAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-        pathAnimation.fromValue = (__bridge id)(noPath.CGPath);
-        pathAnimation.toValue = (__bridge id)(path.CGPath);
-        [pathLayer addAnimation:pathAnimation forKey:@"path"];
-    } else {
-        CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
-        pathAnimation.duration = _animationDuration;
-        pathAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-        pathAnimation.fromValue = [NSNumber numberWithFloat:0.0f];
-        pathAnimation.toValue = [NSNumber numberWithFloat:1.0f];
-        [pathLayer addAnimation:pathAnimation forKey:@"path"];
-    }
+        if(dataSet.fillColor) {
+            CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
+            pathAnimation.duration = _animationDuration;
+            pathAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            pathAnimation.fromValue = (__bridge id)(noPath.CGPath);
+            pathAnimation.toValue = (__bridge id)(path.CGPath);
+            [pathLayer addAnimation:pathAnimation forKey:@"path"];
+        } else {
+            CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
+            pathAnimation.duration = _animationDuration;
+            pathAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            pathAnimation.fromValue = [NSNumber numberWithFloat:0.0f];
+            pathAnimation.toValue = [NSNumber numberWithFloat:1.0f];
+            [pathLayer addAnimation:pathAnimation forKey:@"path"];
+        }
     }
 }
 
@@ -301,46 +299,44 @@
     
     for(int d=0;d<self.dataSets.count;d++) {
         FSDataSet *dataSet = self.dataSets[d];
-    for(int i=0;i<dataSet.data.count;i++) {
-        CGPoint p = [self getPointForIndex:i ofDataSet:dataSet withScale:scale];
-        p.y +=  minBound * scale;
+        for(int i=0;i<dataSet.data.count;i++) {
+            CGPoint p = [self getPointForIndex:i ofDataSet:dataSet withScale:scale];
+            p.y +=  minBound * scale;
 
-        UIBezierPath* circle = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(p.x - _dataPointRadius, p.y - _dataPointRadius, _dataPointRadius * 2, _dataPointRadius * 2)];
+            UIBezierPath* circle = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(p.x - dataSet.dataPointRadius, p.y - dataSet.dataPointRadius, dataSet.dataPointRadius * 2, dataSet.dataPointRadius * 2)];
         
-        CAShapeLayer *fillLayer = [CAShapeLayer layer];
-        fillLayer.frame = CGRectMake(p.x, p.y, _dataPointRadius, _dataPointRadius);
-        fillLayer.bounds = CGRectMake(p.x, p.y, _dataPointRadius, _dataPointRadius);
-        fillLayer.path = circle.CGPath;
-        fillLayer.strokeColor = _dataPointColor.CGColor;
-        fillLayer.fillColor = _dataPointBackgroundColor.CGColor;
-        fillLayer.lineWidth = 1;
-        fillLayer.lineJoin = kCALineJoinRound;
+            CAShapeLayer *fillLayer = [CAShapeLayer layer];
+            fillLayer.frame = CGRectMake(p.x, p.y, dataSet.dataPointRadius, dataSet.dataPointRadius);
+            fillLayer.bounds = CGRectMake(p.x, p.y, dataSet.dataPointRadius, dataSet.dataPointRadius);
+            fillLayer.path = circle.CGPath;
+            fillLayer.strokeColor = dataSet.dataPointColor.CGColor;
+            fillLayer.fillColor = dataSet.dataPointBackgroundColor.CGColor;
+            fillLayer.lineWidth = 1;
+            fillLayer.lineJoin = kCALineJoinRound;
         
-        [self.layer addSublayer:fillLayer];
+            [self.layer addSublayer:fillLayer];
         
-        CATextLayer *label = [[CATextLayer alloc] init];
-        //[label setFont:@"Helvetica-Bold"];
-        [label setFontSize:8];
-        //label.opaque = TRUE;
-        CGFloat scale = [[UIScreen mainScreen] scale];
-        label.contentsScale = scale;
-        [label setFrame:CGRectMake(p.x-10, p.y+-15, 20, 10)];
-        [label setAlignmentMode:kCAAlignmentCenter];
-        [label setForegroundColor:[[UIColor blackColor] CGColor]];
+            CATextLayer *label = [[CATextLayer alloc] init];
+            //[label setFont:@"Helvetica-Bold"];
+            [label setFontSize:8];
+            //label.opaque = TRUE;
+            CGFloat scale = [[UIScreen mainScreen] scale];
+            label.contentsScale = scale;
+            [label setFrame:CGRectMake(p.x-10, p.y+-15, 20, 10)];
+            [label setAlignmentMode:kCAAlignmentCenter];
+            [label setForegroundColor:[[UIColor blackColor] CGColor]];
         
-        NSNumber* number = dataSet.data[i];
-        NSString *strValue = [NSString stringWithFormat:@"%@", number ];
-        [label setString:strValue];
+            NSNumber* number = dataSet.data[i];
+            NSString *strValue = [NSString stringWithFormat:@"%@", number ];
+            [label setString:strValue];
         
-        [self.layer addSublayer:label];
-    }
+            [self.layer addSublayer:label];
+        }
     }
 }
 
 - (void)setDefaultParameters
 {
-    _color = [UIColor fsLightBlue];
-    _fillColor = [_color colorWithAlphaComponent:0.25];
     _verticalGridStep = 3;
     _horizontalGridStep = 3;
     _margin = 5.0f;
@@ -349,16 +345,10 @@
     _axisColor = [UIColor colorWithWhite:0.7 alpha:1.0];
     _innerGridColor = [UIColor colorWithWhite:0.9 alpha:1.0];
     _drawInnerGrid = YES;
-    _bezierSmoothing = YES;
-    _bezierSmoothingTension = 0.2;
-    _lineWidth = 1;
     _innerGridLineWidth = 0.5;
     _axisLineWidth = 1;
     _animationDuration = 0.5;
-    _displayDataPoint = NO;
-    _dataPointRadius = 1;
-    _dataPointColor = _color;
-    _dataPointBackgroundColor = _color;
+    
     
     // Labels attributes
     _indexLabelBackgroundColor = [UIColor clearColor];
@@ -502,8 +492,8 @@
                 m.y = (nextPoint.y - p.y) / 2;
             }
             
-            controlPoint[0].x = p.x + m.x * _bezierSmoothingTension;
-            controlPoint[0].y = p.y + m.y * _bezierSmoothingTension;
+            controlPoint[0].x = p.x + m.x * dataSet.bezierSmoothingTension;
+            controlPoint[0].y = p.y + m.y * dataSet.bezierSmoothingTension;
             
             // Second control point
             nextPoint = [self getPointForIndex:i + 2 ofDataSet:dataSet withScale:scale];
@@ -519,8 +509,8 @@
                 m.y = (p.y - previousPoint.y) / 2;
             }
             
-            controlPoint[1].x = p.x - m.x * _bezierSmoothingTension;
-            controlPoint[1].y = p.y - m.y * _bezierSmoothingTension;
+            controlPoint[1].x = p.x - m.x * dataSet.bezierSmoothingTension;
+            controlPoint[1].y = p.y - m.y * dataSet.bezierSmoothingTension;
             
             [path addCurveToPoint:p controlPoint1:controlPoint[0] controlPoint2:controlPoint[1]];
         }

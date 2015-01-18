@@ -62,25 +62,12 @@ typedef NS_ENUM(NSInteger, ValueLabelPositionType) {
 @property (nonatomic, strong) UIColor* axisColor;
 @property (nonatomic) CGFloat axisLineWidth;
 
-// Chart parameters
-@property (nonatomic, strong) UIColor* color;
-@property (nonatomic, strong) UIColor* fillColor;
-@property (nonatomic) CGFloat lineWidth;
-
-// Data points
-@property (nonatomic) BOOL displayDataPoint;
-@property (nonatomic, strong) UIColor* dataPointColor;
-@property (nonatomic, strong) UIColor* dataPointBackgroundColor;
-@property (nonatomic) CGFloat dataPointRadius;
 
 // Grid parameters
 @property (nonatomic) BOOL drawInnerGrid;
 @property (nonatomic, strong) UIColor* innerGridColor;
 @property (nonatomic) CGFloat innerGridLineWidth;
 
-// Smoothing
-@property (nonatomic) BOOL bezierSmoothing;
-@property (nonatomic) CGFloat bezierSmoothingTension;
 
 // Animations
 @property (nonatomic) CGFloat animationDuration;
