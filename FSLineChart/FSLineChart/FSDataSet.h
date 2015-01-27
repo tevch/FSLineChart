@@ -20,6 +20,7 @@
 
 // Data points
 @property (nonatomic) BOOL displayDataPoint;
+@property (nonatomic) BOOL dataPointLabelOnTop;
 @property (nonatomic, strong) UIColor* dataPointColor;
 @property (nonatomic, strong) UIColor* dataPointBackgroundColor;
 @property (nonatomic) CGFloat dataPointRadius;

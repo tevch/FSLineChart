@@ -49,15 +49,17 @@
     dataSet1Data[5] = [NSNumber numberWithInt:8];
     
     FSDataSet * dataSet1 = [[FSDataSet alloc] initWithData:dataSet1Data];
-    dataSet1.displayDataPoint = YES;
+    dataSet1.displayDataPoint = NO;
     dataSet1.bezierSmoothing = NO;
     //dataSet1.color = [UIColor fsOrange];
     dataSet1.fillColor = [[UIColor fsPink] colorWithAlphaComponent:0.3];
+    dataSet1.color = [[UIColor fsPink] colorWithAlphaComponent:0.3];
+    dataSet1.lineWidth=0;
     dataSet1.dataPointRadius = 2;
     
     NSMutableArray* dataSet2Data = [NSMutableArray arrayWithCapacity:10];
-    dataSet2Data[0] = [NSNumber numberWithInt:2];
-    dataSet2Data[1] = [NSNumber numberWithInt:5];
+    dataSet2Data[0] = [NSNumber numberWithInt:0];
+    dataSet2Data[1] = [NSNumber numberWithInt:0];
     dataSet2Data[2] = [NSNumber numberWithInt:8];
     dataSet2Data[3] = [NSNumber numberWithInt:11];
     dataSet2Data[4] = [NSNumber numberWithInt:10];
@@ -70,6 +72,7 @@
     //dataSet2.color = [UIColor fsOrange];
     dataSet2.fillColor = [[UIColor fsLightBlue] colorWithAlphaComponent:0.3];
     dataSet2.dataPointRadius = 2;
+    dataSet2.dataPointLabelOnTop=NO;
     //dataSet2.color = [UIColor colorWithRed:151.0f/255.0f green:187.0f/255.0f blue:205.0f/255.0f alpha:1.0f];
     //dataSet2.fillColor = [dataSet2.color colorWithAlphaComponent:0.3];
     
@@ -79,7 +82,8 @@
     dataSets[1] = dataSet2;
     
     // Creating the line chart
-    FSLineChart* lineChart = [[FSLineChart alloc] initWithFrame:CGRectMake(20, 60, [UIScreen mainScreen].bounds.size.width - 40, 166)];
+    FSLineChart* lineChart = [[FSLineChart alloc] initWithFrame:CGRectMake(10, 10, [UIScreen mainScreen].bounds.size.width - 10, 66)];
+    lineChart.backgroundColor = [UIColor lightGrayColor];
     //lineChart.verticalGridStep = 10;
     //lineChart.horizontalGridStep = 9;
     lineChart.verticalGridStep = 1;
@@ -95,6 +99,7 @@
     };
      */
     [lineChart setChartDataSets:dataSets];
+    
     return lineChart;
 }
 -(FSLineChart*)chart2 {

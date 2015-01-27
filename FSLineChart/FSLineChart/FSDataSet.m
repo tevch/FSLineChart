@@ -27,6 +27,7 @@
     _lineWidth = 1;
     
     _displayDataPoint = NO;
+    _dataPointLabelOnTop = YES;
     _dataPointRadius = 1;
     _dataPointColor = _color;
     _dataPointBackgroundColor = _color;

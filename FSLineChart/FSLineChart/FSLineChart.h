@@ -53,7 +53,8 @@ typedef NS_ENUM(NSInteger, ValueLabelPositionType) {
 @property (nonatomic) int horizontalGridStep;
 
 // Margin of the chart
-@property (nonatomic) CGFloat margin;
+@property (nonatomic) CGFloat marginVertical;
+@property (nonatomic) CGFloat marginHorizontal;
 
 @property (nonatomic) CGFloat axisWidth;
 @property (nonatomic) CGFloat axisHeight;

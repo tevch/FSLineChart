@@ -35,13 +35,24 @@
 
 @end
 
-@implementation FSLineChart
-
+@implementation FSLineChart {
+    int labelFontSize;
+}
+/*
+- (id)init {
+    self = [super init];
+    if (self) {
+        //self.backgroundColor = [UIColor whiteColor];
+        [self setDefaultParameters];
+    }
+    return self;
+}
+ */
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        self.backgroundColor = [UIColor whiteColor];
+        //self.backgroundColor = [UIColor whiteColor];
         [self setDefaultParameters];
     }
     return self;
@@ -62,6 +73,9 @@
 
 - (void)setChartDataSets:(NSArray *)chartDataSets
 {
+    
+    self.layer.sublayers = nil;
+    
     _dataSets = [NSMutableArray arrayWithArray:chartDataSets];
     
     [self computeBounds];
@@ -80,14 +94,14 @@
     
     if(_labelForValue) {
         for(int i=0;i<_verticalGridStep;i++) {
-            CGPoint p = CGPointMake(_margin + (_valueLabelPosition == ValueLabelRight ? _axisWidth : 0), _axisHeight + _margin - (i + 1) * _axisHeight / _verticalGridStep);
+            CGPoint p = CGPointMake(_marginHorizontal + (_valueLabelPosition == ValueLabelRight ? _axisWidth : 0), _axisHeight + _marginVertical - (i + 1) * _axisHeight / _verticalGridStep);
             
             NSString* text = _labelForValue(minBound + (maxBound - minBound) / _verticalGridStep * (i + 1));
             
             if(!text)
                 continue;
             
-            CGRect rect = CGRectMake(_margin, p.y + 2, self.frame.size.width - _margin * 2 - 4.0f, 14);
+            CGRect rect = CGRectMake(_marginHorizontal, p.y + 2, self.frame.size.width - _marginHorizontal * 2 - 4.0f, 14);
             
             float width =
             [text
@@ -126,9 +140,9 @@
             if(!text)
                 continue;
             
-            CGPoint p = CGPointMake(_margin + i * (_axisWidth / _horizontalGridStep) * scale, _axisHeight + _margin);
+            CGPoint p = CGPointMake(_marginHorizontal + i * (_axisWidth / _horizontalGridStep) * scale, _axisHeight + _marginVertical);
             
-            CGRect rect = CGRectMake(_margin, p.y + 2, self.frame.size.width - _margin * 2 - 4.0f, 14);
+            CGRect rect = CGRectMake(_marginHorizontal, p.y + 2, self.frame.size.width - _marginHorizontal * 2 - 4.0f, 14);
             
             float width =
             [text
@@ -164,8 +178,8 @@
     CGContextSetStrokeColorWithColor(ctx, [_axisColor CGColor]);
     
     // draw coordinate axis
-    CGContextMoveToPoint(ctx, _margin, _margin);
-    CGContextAddLineToPoint(ctx, _margin, _axisHeight + _margin + 3);
+    CGContextMoveToPoint(ctx, _marginHorizontal, _marginVertical);
+    CGContextAddLineToPoint(ctx, _marginHorizontal, _axisHeight + _marginVertical + 3);
     CGContextStrokePath(ctx);
     
     FSDataSet *longestDataSet = [self getLongestDataSet];
@@ -184,16 +198,16 @@
             CGContextSetStrokeColorWithColor(ctx, [_innerGridColor CGColor]);
             CGContextSetLineWidth(ctx, _innerGridLineWidth);
             
-            CGPoint point = CGPointMake((1 + i) * _axisWidth / _horizontalGridStep * scale + _margin, _margin);
+            CGPoint point = CGPointMake((1 + i) * _axisWidth / _horizontalGridStep * scale + _marginHorizontal, _marginVertical);
             
             CGContextMoveToPoint(ctx, point.x, point.y);
-            CGContextAddLineToPoint(ctx, point.x, _axisHeight + _margin);
+            CGContextAddLineToPoint(ctx, point.x, _axisHeight + _marginVertical);
             CGContextStrokePath(ctx);
             
             CGContextSetStrokeColorWithColor(ctx, [_axisColor CGColor]);
             CGContextSetLineWidth(ctx, _axisLineWidth);
-            CGContextMoveToPoint(ctx, point.x - 0.5f, _axisHeight + _margin);
-            CGContextAddLineToPoint(ctx, point.x - 0.5f, _axisHeight + _margin + 3);
+            CGContextMoveToPoint(ctx, point.x - 0.5f, _axisHeight + _marginVertical);
+            CGContextAddLineToPoint(ctx, point.x - 0.5f, _axisHeight + _marginVertical + 3);
             CGContextStrokePath(ctx);
         }
         
@@ -209,10 +223,10 @@
                 CGContextSetLineWidth(ctx, _innerGridLineWidth);
             }
             
-            CGPoint point = CGPointMake(_margin, (i) * _axisHeight / _verticalGridStep + _margin);
+            CGPoint point = CGPointMake(_marginHorizontal, (i) * _axisHeight / _verticalGridStep + _marginVertical);
             
             CGContextMoveToPoint(ctx, point.x, point.y);
-            CGContextAddLineToPoint(ctx, _axisWidth + _margin, point.y);
+            CGContextAddLineToPoint(ctx, _axisWidth + _marginHorizontal, point.y);
             CGContextStrokePath(ctx);
         }
     }
@@ -303,26 +317,29 @@
             CGPoint p = [self getPointForIndex:i ofDataSet:dataSet withScale:scale];
             p.y +=  minBound * scale;
 
-            UIBezierPath* circle = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(p.x - dataSet.dataPointRadius, p.y - dataSet.dataPointRadius, dataSet.dataPointRadius * 2, dataSet.dataPointRadius * 2)];
+            if(dataSet.displayDataPoint) {
+                UIBezierPath* circle = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(p.x - dataSet.dataPointRadius, p.y - dataSet.dataPointRadius, dataSet.dataPointRadius * 2, dataSet.dataPointRadius * 2)];
+                
+                CAShapeLayer *fillLayer = [CAShapeLayer layer];
+                fillLayer.frame = CGRectMake(p.x, p.y, dataSet.dataPointRadius, dataSet.dataPointRadius);
+                fillLayer.bounds = CGRectMake(p.x, p.y, dataSet.dataPointRadius, dataSet.dataPointRadius);
+                fillLayer.path = circle.CGPath;
+                fillLayer.strokeColor = dataSet.dataPointColor.CGColor;
+                fillLayer.fillColor = dataSet.dataPointBackgroundColor.CGColor;
+                fillLayer.lineWidth = 1;
+                fillLayer.lineJoin = kCALineJoinRound;
         
-            CAShapeLayer *fillLayer = [CAShapeLayer layer];
-            fillLayer.frame = CGRectMake(p.x, p.y, dataSet.dataPointRadius, dataSet.dataPointRadius);
-            fillLayer.bounds = CGRectMake(p.x, p.y, dataSet.dataPointRadius, dataSet.dataPointRadius);
-            fillLayer.path = circle.CGPath;
-            fillLayer.strokeColor = dataSet.dataPointColor.CGColor;
-            fillLayer.fillColor = dataSet.dataPointBackgroundColor.CGColor;
-            fillLayer.lineWidth = 1;
-            fillLayer.lineJoin = kCALineJoinRound;
-        
-            [self.layer addSublayer:fillLayer];
+                [self.layer addSublayer:fillLayer];
+            }
         
             CATextLayer *label = [[CATextLayer alloc] init];
             //[label setFont:@"Helvetica-Bold"];
-            [label setFontSize:8];
+            [label setFontSize:self->labelFontSize];
             //label.opaque = TRUE;
             CGFloat scale = [[UIScreen mainScreen] scale];
             label.contentsScale = scale;
-            [label setFrame:CGRectMake(p.x-10, p.y+-15, 20, 10)];
+            //[label setFrame:CGRectMake(p.x-10, dataSet.dataPointLabelOnTop?p.y+-12:p.y+12, 20, 10)];
+            [label setFrame:CGRectMake(p.x-10, dataSet.dataPointLabelOnTop?p.y+-12:p.y+2, 20, 10)];
             [label setAlignmentMode:kCAAlignmentCenter];
             [label setForegroundColor:[[UIColor blackColor] CGColor]];
         
@@ -337,14 +354,17 @@
 
 - (void)setDefaultParameters
 {
+    self->labelFontSize = 8;
     _verticalGridStep = 3;
     _horizontalGridStep = 3;
-    _margin = 5.0f;
-    _axisWidth = self.frame.size.width - 2 * _margin;
-    _axisHeight = self.frame.size.height - 2 * _margin;
+    //_margin = 15.0f;
+    _marginVertical = 12.0f;
+    _marginHorizontal = 12.0f;
+    _axisWidth = self.frame.size.width - 2 * _marginHorizontal;
+    _axisHeight = self.frame.size.height - 2 * _marginVertical;
     _axisColor = [UIColor colorWithWhite:0.7 alpha:1.0];
     _innerGridColor = [UIColor colorWithWhite:0.9 alpha:1.0];
-    _drawInnerGrid = YES;
+    _drawInnerGrid = NO;
     _innerGridLineWidth = 0.5;
     _axisLineWidth = 1;
     _animationDuration = 0.5;
@@ -461,7 +481,7 @@
     
     // Compute the point in the view from the data with a set scale
     NSNumber* number = dataSet.data[idx];
-    return CGPointMake(_margin + idx * (_axisWidth / (dataSet.data.count - 1)), _axisHeight + _margin - [number floatValue] * scale);
+    return CGPointMake(_marginHorizontal + idx * (_axisWidth / (dataSet.data.count - 1)), _axisHeight + _marginVertical - [number floatValue] * scale);
 }
 
 - (UIBezierPath*)getLinePath:(float)scale ofDataSet:(FSDataSet *)dataSet withSmoothing:(BOOL)smoothed close:(BOOL)closed
