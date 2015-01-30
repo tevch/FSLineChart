@@ -339,12 +339,38 @@
             CGFloat scale = [[UIScreen mainScreen] scale];
             label.contentsScale = scale;
             //[label setFrame:CGRectMake(p.x-10, dataSet.dataPointLabelOnTop?p.y+-12:p.y+12, 20, 10)];
-            [label setFrame:CGRectMake(p.x-10, dataSet.dataPointLabelOnTop?p.y+-12:p.y+2, 20, 10)];
+        
+            NSNumber* number = dataSet.data[i];
+            
+            if(dataSet.dataPointLabelOnTop) {
+                [label setFrame:CGRectMake(p.x-10, p.y+-12, 20, 10)];
+            } else {
+                for(int cd=0;cd<self.dataSets.count;cd++) {
+                    FSDataSet *concurrentDataSet = self.dataSets[cd];
+                    if(concurrentDataSet == dataSet) {
+                        continue;
+                    }
+                    //NSLog(@"%d %d", dataSet.data[i], concurrentDataSet.data[i]);
+                    NSNumber *concurrentValue = concurrentDataSet.data[i];
+                    //if([concurrentValue doubleValue]>0 && [concurrentValue doubleValue] - [number doubleValue] <5) {
+                    if([concurrentValue doubleValue]>0) {
+                        [label setFrame:CGRectMake(p.x-10, p.y+2, 20, 10)];
+                    } else {
+                        [label setFrame:CGRectMake(p.x-10, p.y+-12, 20, 10)];
+                    }
+                }
+                
+            }
+            
+            
             [label setAlignmentMode:kCAAlignmentCenter];
             [label setForegroundColor:[[UIColor blackColor] CGColor]];
         
-            NSNumber* number = dataSet.data[i];
             NSString *strValue = [NSString stringWithFormat:@"%@", number ];
+            if(dataSet.valueFormatter!=nil) {
+                strValue = [dataSet.valueFormatter formatValue:number];
+            }
+            
             [label setString:strValue];
         
             [self.layer addSublayer:label];
@@ -358,8 +384,12 @@
     _verticalGridStep = 3;
     _horizontalGridStep = 3;
     //_margin = 15.0f;
+    /*
     _marginVertical = 12.0f;
     _marginHorizontal = 12.0f;
+     */
+    _marginVertical = 10.0f;
+    _marginHorizontal = 8.0f;
     _axisWidth = self.frame.size.width - 2 * _marginHorizontal;
     _axisHeight = self.frame.size.height - 2 * _marginVertical;
     _axisColor = [UIColor colorWithWhite:0.7 alpha:1.0];

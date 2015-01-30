@@ -9,6 +9,11 @@
 #import <Foundation/Foundation.h>
 #import "UIColor+FSPalette.h"
 
+@protocol DataSetValueFormatter
+// list of methods and properties
+-(NSString *) formatValue:(NSNumber *)number;
+@end
+
 @interface FSDataSet : NSObject
 
 @property (nonatomic, strong) NSArray* data;
@@ -28,6 +33,9 @@
 // Smoothing
 @property (nonatomic) BOOL bezierSmoothing;
 @property (nonatomic) CGFloat bezierSmoothingTension;
+
+//formatting
+@property (nonatomic) id<DataSetValueFormatter> valueFormatter;
 
 
 
