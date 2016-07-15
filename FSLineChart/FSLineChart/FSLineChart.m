@@ -87,6 +87,9 @@
     if(isnan(_max)) {
         _max = 1;
     }
+    if(_max ==0 && _min==0) {
+        _max = 1;
+    }
     
     [self strokeChart];
     
@@ -245,6 +248,7 @@
         CGFloat maxBound = MAX(_max, 0);
     
         CGFloat scale = _axisHeight / (maxBound - minBound);
+        
     
         noPath = [self getLinePath:0 ofDataSet:dataSet withSmoothing:dataSet.bezierSmoothing close:NO];
         path = [self getLinePath:scale ofDataSet:dataSet withSmoothing:dataSet.bezierSmoothing close:NO];
@@ -511,7 +515,8 @@
     
     // Compute the point in the view from the data with a set scale
     NSNumber* number = dataSet.data[idx];
-    return CGPointMake(_marginHorizontal + idx * (_axisWidth / (dataSet.data.count - 1)), _axisHeight + _marginVertical - [number floatValue] * scale);
+    CGPoint point = CGPointMake(_marginHorizontal + idx * (_axisWidth / (dataSet.data.count - 1)), _axisHeight + _marginVertical - [number floatValue] * scale);
+    return point;
 }
 
 - (UIBezierPath*)getLinePath:(float)scale ofDataSet:(FSDataSet *)dataSet withSmoothing:(BOOL)smoothed close:(BOOL)closed
@@ -567,10 +572,11 @@
         
     } else {
         for(int i=0;i<dataSet.data.count;i++) {
+            CGPoint point = [self getPointForIndex:i ofDataSet:dataSet withScale:scale];
             if(i > 0) {
-                [path addLineToPoint:[self getPointForIndex:i ofDataSet:dataSet withScale:scale]];
+                [path addLineToPoint:point];
             } else {
-                [path moveToPoint:[self getPointForIndex:i ofDataSet:dataSet withScale:scale]];
+                [path moveToPoint:point];
             }
         }
     }

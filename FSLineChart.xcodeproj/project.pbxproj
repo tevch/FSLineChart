@@ -16,6 +16,7 @@
 		8EA19B0619DB55E9005F4BD1 /* FSLineChartTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EA19B0519DB55E9005F4BD1 /* FSLineChartTests.m */; };
 		8EA19B1119DB5696005F4BD1 /* FSLineChart.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EA19B1019DB5696005F4BD1 /* FSLineChart.m */; };
 		8EA19B1519DB56E8005F4BD1 /* UIColor+FSPalette.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EA19B1419DB56E8005F4BD1 /* UIColor+FSPalette.m */; };
+		F9349ECF1A6B7CF100253C9C /* FSDataSet.m in Sources */ = {isa = PBXBuildFile; fileRef = F9349ECE1A6B7CF100253C9C /* FSDataSet.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +47,8 @@
 		8EA19B1019DB5696005F4BD1 /* FSLineChart.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FSLineChart.m; path = FSLineChart/FSLineChart.m; sourceTree = "<group>"; };
 		8EA19B1319DB56E8005F4BD1 /* UIColor+FSPalette.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIColor+FSPalette.h"; path = "FSLineChart/UIColor+FSPalette.h"; sourceTree = "<group>"; };
 		8EA19B1419DB56E8005F4BD1 /* UIColor+FSPalette.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIColor+FSPalette.m"; path = "FSLineChart/UIColor+FSPalette.m"; sourceTree = "<group>"; };
+		F9349ECD1A6B7CF100253C9C /* FSDataSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSDataSet.h; path = FSLineChart/FSDataSet.h; sourceTree = "<group>"; };
+		F9349ECE1A6B7CF100253C9C /* FSDataSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FSDataSet.m; path = FSLineChart/FSDataSet.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +136,8 @@
 				8EA19B1419DB56E8005F4BD1 /* UIColor+FSPalette.m */,
 				8EA19B0F19DB5696005F4BD1 /* FSLineChart.h */,
 				8EA19B1019DB5696005F4BD1 /* FSLineChart.m */,
+				F9349ECD1A6B7CF100253C9C /* FSDataSet.h */,
+				F9349ECE1A6B7CF100253C9C /* FSDataSet.m */,
 			);
 			name = FSLineChart;
 			sourceTree = "<group>";
@@ -240,6 +245,7 @@
 				8EA19AF219DB55E9005F4BD1 /* ViewController.m in Sources */,
 				8EA19AEF19DB55E9005F4BD1 /* AppDelegate.m in Sources */,
 				8EA19AEC19DB55E9005F4BD1 /* main.m in Sources */,
+				F9349ECF1A6B7CF100253C9C /* FSDataSet.m in Sources */,
 				8EA19B1119DB5696005F4BD1 /* FSLineChart.m in Sources */,
 				8EA19B1519DB56E8005F4BD1 /* UIColor+FSPalette.m in Sources */,
 			);
